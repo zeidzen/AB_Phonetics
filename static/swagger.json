@@ -1,0 +1,93 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Arab Bank ",
+    "version": "1.0.0",
+    "title": "Arab Bank Phonetics API",
+    "contact": {
+      "email": "amro.alfares@appspro-me.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "Book Request",
+      "description": "Example API for requesting and return book requests"
+    }
+  ],
+  "paths": {
+    "/request": {
+      "get": {
+        "tags": [
+          "Book Request"
+        ],
+        "summary": "Returns bookRequests",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/components/schemas/bookRequests"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  
+  "components": {
+    "schemas": {
+      "id": {
+        "properties": {
+          "uuid": {
+            "type": "string"
+          }
+        }
+      },
+      "bookRequestPostBody": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "format": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "bookRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "format": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "number"
+          }
+        }
+      },
+      "bookRequests": {
+        "type": "object",
+        "properties": {
+          "bookRequest": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/bookRequest"
+            }
+          }
+        }
+      }
+    }
+  }
+}

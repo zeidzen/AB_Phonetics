@@ -1,0 +1,11 @@
+﻿language,starting_with,number_of_characters,ending_with,location,operations
+ar,إ,1,ا,any,replace
+ar,أ,1,ا,any,replace
+ar,آ,1,ا,any,replace
+ar,ة,1,ا,any,replace
+ar,ى,1,ا,last,replace
+ar,ك,1,گ,last,replace
+ar,ه,1,ا,last,replace
+ar,ي,1,ى,last,replace
+ar,ال,2, ,first,replace
+ar,ئ,1, ؤ,first,replace

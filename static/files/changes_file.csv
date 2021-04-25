@@ -1,0 +1,6 @@
+﻿operation,index,full_name_en,first_name_en,second_name_en,third_name_en,last_name_en,mobile_number,Nationality,document_type,document_number,row_id
+add,ab_test_2,maen zein,maen,,,zein,,,,,600
+add,ab_test_6,mohmaed naeem ,,,,,,,,,601
+add,ab_test_3,yazan zein,yazan,,,zein,,,,,602
+update,ab_test_4,maen naeem zein,,naeem,,,,,,,600
+delete,ab_test_3,yazan zein,yazan,,,zein,,,,,602
