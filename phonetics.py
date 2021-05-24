@@ -39,7 +39,7 @@ class Operations () :
         self.settings_file = pd.read_csv("static/files/settings.csv")
 
 
-    def generate_query (self, index :str, fileds:dict, size = None, _source =None  , _sort=None  ) -> dict :
+    def generate_query (self, index :str, fields:dict, size = None, _source =None  , _sort=None  ) -> dict :
         
         # Phonetics lists
         phonetics_must_list = list()
@@ -74,7 +74,7 @@ class Operations () :
        
         settings = self.settings_file[self.settings_file['index'] == index]
 
-        for key , value in fileds.items() : 
+        for key , value in fields.items() : 
 
             if value == '' or value == [] : 
                 continue 
@@ -136,23 +136,23 @@ class Operations () :
                             deterministic_must_not_list.append(term)
 
 
-        if "first_name_en" in fileds.keys() : 
-            if "abd" ==  fileds['fileds']["first_name_en"][0:3].lower() : 
-                    if fileds['fileds']["first_name_en"][3] == " " : 
-                        new_value = "abd"+fileds['fileds']["first_name_en"][4:]
+        if "first_name_en" in fields.keys() : 
+            if "abd" ==  fields['fields']["first_name_en"][0:3].lower() : 
+                    if fields['fields']["first_name_en"][3] == " " : 
+                        new_value = "abd"+fields['fields']["first_name_en"][4:]
                     else : 
-                        new_value = "abd "+fileds['fileds']["first_name_en"][4:]
+                        new_value = "abd "+fields['fields']["first_name_en"][4:]
 
                     match = {"match":dict() } 
                     key_dict = { "query": new_value,"fuzziness": "AUTO", "operator": "and" }
                     match['match']["first_name_en"] = key_dict
                     phonetics_must_list.append(match)
 
-            elif "abed" ==  fileds['fileds']["first_name_en"][0:4].lower() : 
-                    if fileds['fileds']["first_name_en"][4] == " " : 
-                        new_value = "abed"+fileds['fileds']["first_name_en"][5:]
+            elif "abed" ==  fields['fields']["first_name_en"][0:4].lower() : 
+                    if fields['fields']["first_name_en"][4] == " " : 
+                        new_value = "abed"+fields['fields']["first_name_en"][5:]
                     else : 
-                        new_value = "abed "+fileds['fileds']["first_name_en"][5:]
+                        new_value = "abed "+fields['fields']["first_name_en"][5:]
 
                     match = {"match":dict() }
                     key_dict = { "query": new_value,"fuzziness": "AUTO", "operator": "and" }
@@ -206,8 +206,9 @@ class Operations () :
         vector_1 = vector_1.reshape(1,-1)
         vector_2 = vector_2.reshape(1,-1)
         scoure = cosine_similarity(vector_1 , vector_2 )
+        return scoure
 
-    def calculate_weight_for_object (self , fileds : dict , result : dict , index :str , pre_processing = 'on' , weight_type='local_weight' ) -> dict :
+    def calculate_weight_for_object (self , fields : dict , result : dict , index :str , pre_processing = 'on' , weight_type='local_weight' ) -> dict :
 
         obj_data = dict()
         settings = self.settings_file[self.settings_file['index'] == index]
@@ -215,8 +216,8 @@ class Operations () :
         for key , value in result.items() :
             key_info = settings[settings['field']== key]
             
-            if key in fileds.keys() : 
-                if fileds[key] != '' and fileds[key] != [] :
+            if key in fields.keys() : 
+                if fields[key] != '' and fields[key] != [] :
 
                     if key_info.iloc[0,:]["search_type"] == "phonetics" :
 
@@ -225,20 +226,20 @@ class Operations () :
                                 pre_processing = "off"
 
                         language = key_info.iloc[0,:]["language"]
-                        similarity_ratio = self.phonetics(field_value = fileds[key] , search_value = value , language = language , pre_processing = pre_processing   ) * 100
+                        similarity_ratio = self.phonetics(field_value = fields[key] , search_value = value , language = language , pre_processing = pre_processing   ) * 100
 
                     elif  key_info.iloc[0,:]["search_type"] == "deterministic" : 
 
                         if key_info.iloc[0,:]["value_type"] == "single" :
 
-                            if value == fileds[key] : 
+                            if value == fields[key] : 
                                 similarity_ratio = 100
                             else : 
                                 similarity_ratio = 0
 
                         elif key_info.iloc[0,:]["value_type"] == "mulitnale" :
 
-                            if value in  fileds[key] : 
+                            if value in  fields[key] : 
                                 similarity_ratio = 100
                             else : 
                                 similarity_ratio = 0
@@ -251,6 +252,7 @@ class Operations () :
         #obj_data['overall_similarity_ratio'] = self.calculate_overall_weight( index = index ,result = obj_data , weight_type= weight_type )
         return obj_data
 
+
     def calculate_overall_weight (self, index:str, result:dict, weight_type='local_weight' ) -> float : 
         settings = self.settings_file[self.settings_file['index'] == index]
         total = 0
@@ -262,8 +264,9 @@ class Operations () :
         total = total/ count 
         return  total 
  
-    def search (self, index:str, fileds:dict, size=None, _source=None, _sort=None, pre_processing='on', init_country='jo', return_query=False  ) -> list : 
-        query =  self.generate_query (index=index, fileds=fileds, size=size, _source=_source, _sort=_sort)
+ 
+    def search (self, index:str, fields:dict, size=None, _source=None, _sort=None, pre_processing='on', init_country='jo', return_query=False  ) -> list : 
+        query =  self.generate_query (index=index, fields=fields, size=size, _source=_source, _sort=_sort)
         if return_query : 
             return query
         result = self.es.search(index=index , body=query)
@@ -272,7 +275,7 @@ class Operations () :
         for obj in result["hits"]["hits"]:
 
             result_with_weight = self.calculate_weight_for_object(
-                 fileds = fileds ,  
+                 fields = fields ,  
                  result = obj['_source'] , 
                  index= index , 
                  pre_processing = pre_processing ,
@@ -290,7 +293,7 @@ class Operations () :
 
 
     def update (self,index, party_id ,_object) : 
-        query =  self.generate_query ( index = index  ,fileds = {"row_id":party_id} )
+        query =  self.generate_query ( index = index  ,fields = {"row_id":party_id} )
         result_search  = result = self.es.search( index= index , body = query )['hits']['hits']
 
         if result_search == [] : 
@@ -304,7 +307,7 @@ class Operations () :
 
     def Delete (self, index ,party_id ):
 
-        query =  self.generate_query ( index = index  ,fileds = {"row_id":party_id} )
+        query =  self.generate_query ( index = index  ,fields = {"row_id":party_id} )
         result_search  = result = self.es.search( index= index , body = query )['hits']['hits']
 
         if result_search == [] : 
@@ -321,7 +324,7 @@ class Operations () :
     def compare (self ,index : str , object_one :dict , object_two : dict  ,pre_processing = 'on', weight_type='local_weight' ) -> dict : 
 
         result_with_weight = self.calculate_weight_for_object(
-                fileds = object_one ,  
+                fields = object_one ,  
                 result = object_two , 
                 index= index , 
                 pre_processing = pre_processing ,
@@ -329,7 +332,6 @@ class Operations () :
                 )
                              
         return result_with_weight , 200
-
 
 
     def get_log (self , index = "log" , size = 100 ) : 
