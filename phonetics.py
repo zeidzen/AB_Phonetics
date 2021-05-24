@@ -32,8 +32,8 @@ class Operations () :
     
     def __init__(self) : 
         self.es = Elasticsearch( 
-                        hosts=['15.185.41.105:9200'],
-                        http_auth=('elastic', 'amro_alfares'),
+                        hosts=['10.101.15.31:9200'],
+                        http_auth=('elastic', 'abtest'),
                        )
         
         self.settings_file = pd.read_csv("static/files/settings.csv")
